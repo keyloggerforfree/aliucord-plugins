@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Juby210
+ * Copyright (c) 2026 keyloggerforfree
  * Licensed under the Open Software License version 3.0
  */
 
@@ -14,15 +14,19 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
 /**
- * Renders ```ansi code blocks the way Discord desktop/web does.
- * Supported SGR codes (same set as Discord): 0 reset, 1 bold, 4 underline, 30-37 foreground, 40-47 background.
- * Additionally 22/24/39/49 clear their respective attribute. Every other escape sequence is stripped.
+ * Renders ```ansi code blocks.
+ *
+ * Discord mode (default) matches Discord desktop/web: 0 reset, 1 bold, 4 underline, 30-37 foreground and
+ * 40-47 background with Discord's palette. Terminal mode uses a standard terminal palette instead and adds
+ * bright colors (90-97, 100-107), 256 colors (38;5;n) and true color (38;2;r;g;b).
+ * In both modes 22/24/39/49 clear their attribute. Every other escape sequence is stripped.
  */
 public final class AnsiRenderer {
     private static final char ESC = '\u001b';
 
-    // Discord's ANSI palette (Solarized based)
-    private static final int[] FOREGROUND = {
+    // Discord's palette is based on Solarized. Its backgrounds come from Solarized's "bright" slots,
+    // which Solarized uses for grey tones, so they look washed out compared to a terminal.
+    private static final int[] DISCORD_FOREGROUND = {
         0xFF4F545C, // 30 gray
         0xFFDC322F, // 31 red
         0xFF859900, // 32 green
@@ -32,7 +36,7 @@ public final class AnsiRenderer {
         0xFF2AA198, // 36 cyan
         0xFFFFFFFF, // 37 white
     };
-    private static final int[] BACKGROUND = {
+    private static final int[] DISCORD_BACKGROUND = {
         0xFF002B36, // 40 firefly dark blue
         0xFFCB4B16, // 41 orange
         0xFF586E75, // 42 marble blue
@@ -43,17 +47,25 @@ public final class AnsiRenderer {
         0xFFFDF6E3, // 47 cream white
     };
 
-    private static final int NONE = -1;
+    // Standard 16 terminal colors (VS Code's dark terminal palette): 0-7 normal, 8-15 bright
+    private static final int[] TERMINAL = {
+        0xFF000000, 0xFFCD3131, 0xFF0DBC79, 0xFFE5E510, 0xFF2472C8, 0xFFBC3FBC, 0xFF11A8CD, 0xFFE5E5E5,
+        0xFF666666, 0xFFF14C4C, 0xFF23D18B, 0xFFF5F543, 0xFF3B8EEA, 0xFFD670D6, 0xFF29B8DB, 0xFFFFFFFF,
+    };
+
+    /** No color set. 0 is fully transparent, which no palette color is (unlike -1, which is white). */
+    private static final int NONE = 0;
+    private static final int INVALID = -1;
 
     public static boolean isAnsi(String lang) {
         return "ansi".equalsIgnoreCase(lang);
     }
 
-    public static CharSequence render(String content) {
+    public static CharSequence render(String content, boolean terminalColors) {
         var out = new SpannableStringBuilder();
         if (content == null) return out;
 
-        var state = new State();
+        var state = new State(terminalColors);
         int segmentStart = 0;
         int n = content.length();
         int i = 0;
@@ -93,11 +105,35 @@ public final class AnsiRenderer {
         return out;
     }
 
+    /** xterm 256 color palette: 0-15 base colors, 16-231 6x6x6 cube, 232-255 grays. */
+    private static int xterm256(int n) {
+        if (n < 16) return TERMINAL[n];
+        if (n < 232) {
+            n -= 16;
+            return rgb(cubeLevel(n / 36), cubeLevel(n / 6 % 6), cubeLevel(n % 6));
+        }
+        int gray = 8 + (n - 232) * 10;
+        return rgb(gray, gray, gray);
+    }
+
+    private static int cubeLevel(int i) {
+        return i == 0 ? 0 : 55 + i * 40;
+    }
+
+    private static int rgb(int r, int g, int b) {
+        return 0xFF000000 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
+    }
+
     private static final class State {
+        final boolean terminal;
         int fg = NONE;
         int bg = NONE;
         boolean bold;
         boolean underline;
+
+        State(boolean terminal) {
+            this.terminal = terminal;
+        }
 
         void reset() {
             fg = NONE;
@@ -119,16 +155,32 @@ public final class AnsiRenderer {
                 else if (code == 4) underline = true;
                 else if (code == 22) bold = false;
                 else if (code == 24) underline = false;
-                else if (code >= 30 && code <= 37) fg = FOREGROUND[code - 30];
+                else if (code >= 30 && code <= 37) fg = terminal ? TERMINAL[code - 30] : DISCORD_FOREGROUND[code - 30];
                 else if (code == 39) fg = NONE;
-                else if (code >= 40 && code <= 47) bg = BACKGROUND[code - 40];
+                else if (code >= 40 && code <= 47) bg = terminal ? TERMINAL[code - 40] : DISCORD_BACKGROUND[code - 40];
                 else if (code == 49) bg = NONE;
+                else if (terminal && code >= 90 && code <= 97) fg = TERMINAL[8 + code - 90];
+                else if (terminal && code >= 100 && code <= 107) bg = TERMINAL[8 + code - 100];
                 else if ((code == 38 || code == 48) && k + 1 < codes.length) {
-                    // Extended colors aren't supported by Discord; skip their arguments so they
-                    // aren't misread as separate codes (38;5;n or 38;2;r;g;b)
+                    // 38;5;n / 38;2;r;g;b. Always consume the arguments so they aren't misread as separate codes,
+                    // but only use the color in terminal mode (Discord doesn't support them).
                     int mode = parse(codes[k + 1]);
-                    if (mode == 5) k += 2;
-                    else if (mode == 2) k += 4;
+                    int color = NONE;
+                    if (mode == 5 && k + 2 < codes.length) {
+                        int index = parse(codes[k + 2]);
+                        if (index >= 0 && index <= 255) color = xterm256(index);
+                        k += 2;
+                    } else if (mode == 2 && k + 4 < codes.length) {
+                        int r = parse(codes[k + 2]), g = parse(codes[k + 3]), b = parse(codes[k + 4]);
+                        if (r >= 0 && g >= 0 && b >= 0) color = rgb(r, g, b);
+                        k += 4;
+                    } else {
+                        k = codes.length; // malformed, ignore the rest
+                    }
+                    if (terminal && color != NONE) {
+                        if (code == 38) fg = color;
+                        else bg = color;
+                    }
                 }
             }
         }
@@ -159,7 +211,7 @@ public final class AnsiRenderer {
             try {
                 return Integer.parseInt(s);
             } catch (NumberFormatException e) {
-                return NONE;
+                return INVALID;
             }
         }
     }

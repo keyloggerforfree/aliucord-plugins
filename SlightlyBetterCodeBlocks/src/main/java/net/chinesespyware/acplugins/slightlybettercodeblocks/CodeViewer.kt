@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Juby210
+ * Copyright (c) 2026 keyloggerforfree
  * Licensed under the Open Software License version 3.0
  */
 
@@ -61,6 +61,7 @@ class CodeViewer(
         val text = SpannableStringBuilder(rendered)
         // Overrides TypefaceSpan("monospace") from Discord's own code rendering, which custom system fonts replace
         text.setSpan(MonospaceSpan(font), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        BlockGlyphSpan.apply(text, 0, text.length)
         code.text = text
 
         val gutter = LineNumberGutter(ctx, code, lineCount, ColorCompat.getThemedColor(ctx, R.b.colorTextMuted))

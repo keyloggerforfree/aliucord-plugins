@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Juby210
+ * Copyright (c) 2026 keyloggerforfree
  * Licensed under the Open Software License version 3.0
  */
 
@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.MotionEvent
+import android.widget.TextView
 import com.aliucord.Utils
 import com.aliucord.api.SettingsAPI
 import com.discord.utilities.color.ColorCompat
@@ -24,6 +26,7 @@ import java.util.WeakHashMap
 object CodeBlocks {
     const val KEY_LINE_NUMBERS = "lineNumbers"
     const val KEY_VIEWER_WRAP = "viewerWrap"
+    const val KEY_TERMINAL_COLORS = "ansiTerminalColors"
 
     // Discord's ClickableSpan always calls setUnderlineText(false). A high priority makes it come first in
     // getSpans(), so it's drawn first (ANSI underline still wins) and LinkifiedTextView picks it as the touched span.
@@ -60,6 +63,7 @@ object CodeBlocks {
         if (settings.getBool(KEY_LINE_NUMBERS, false)) addLineNumbers(builder, contentStart, ctx)
         // Set after Discord's/Prism4j's spans so it wins over any TypefaceSpan("monospace") they add
         builder.setSpan(MonospaceSpan(MonospaceSpan.typeface(ctx)), contentStart, builder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        BlockGlyphSpan.apply(builder, contentStart, builder.length)
 
         if (raw != null && (parent == null || parent.isRevealed)) {
             val span = ClickableSpan(
@@ -69,7 +73,26 @@ object CodeBlocks {
                 { view -> openViewer(view.context, lang, raw, rendered) },
             )
             builder.setSpan(span, blockStart, builder.length, CLICK_FLAGS)
+            blockSpans.add(span)
         }
+    }
+
+    private val blockSpans: MutableSet<ClickableSpan> = Collections.newSetFromMap(WeakHashMap())
+
+    /**
+     * Our codeblock span on the touched line, wherever on the line the touch is. LinkifiedTextView only finds spans
+     * under actual characters, so taps on empty space in a block (right of short lines, empty lines) would miss it.
+     */
+    @JvmStatic
+    fun blockSpansAt(textView: TextView, event: MotionEvent): Array<android.text.style.ClickableSpan>? {
+        val text = textView.text as? Spanned ?: return null
+        val layout = textView.layout ?: return null
+        val y = textView.scrollY + event.y.toInt() - textView.totalPaddingTop
+        if (y < 0 || y >= layout.height || event.x < 0 || event.x >= textView.width) return null
+        val line = layout.getLineForVertical(y)
+        val spans = text.getSpans(layout.getLineStart(line), layout.getLineEnd(line), ClickableSpan::class.java)
+            .filter { it in blockSpans }
+        return if (spans.isEmpty()) null else spans.toTypedArray<android.text.style.ClickableSpan>()
     }
 
     private val chatAdapters: MutableSet<RecyclerView.Adapter<*>> = Collections.newSetFromMap(WeakHashMap())

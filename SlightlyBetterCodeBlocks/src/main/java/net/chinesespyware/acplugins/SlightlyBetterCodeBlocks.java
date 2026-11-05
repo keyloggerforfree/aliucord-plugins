@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2021 Juby210
+ * Modified by keyloggerforfree, 2026
  * Licensed under the Open Software License version 3.0
  */
 
@@ -7,6 +8,8 @@ package net.chinesespyware.acplugins;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
+import android.view.MotionEvent;
+import android.widget.TextView;
 
 import com.aliucord.Main;
 import com.aliucord.annotations.AliucordPlugin;
@@ -21,6 +24,7 @@ import com.discord.simpleast.core.parser.Parser;
 import com.discord.utilities.textprocessing.node.BasicRenderContext;
 import com.discord.utilities.textprocessing.node.BlockBackgroundNode;
 import com.discord.utilities.textprocessing.node.Spoilerable;
+import com.discord.utilities.view.text.LinkifiedTextView;
 import com.discord.widgets.chat.list.adapter.WidgetChatListAdapter;
 
 import java.util.regex.Matcher;
@@ -63,6 +67,17 @@ public final class SlightlyBetterCodeBlocks extends Plugin {
         // Remember chat adapters so changing a setting can re-render the messages already on screen
         for (var ctor : WidgetChatListAdapter.class.getDeclaredConstructors())
             patcher.patch(ctor, new Hook(param -> CodeBlocks.trackChatAdapter((WidgetChatListAdapter) param.thisObject)));
+
+        // Discord only finds clickable spans under characters; also count taps on empty space inside a codeblock
+        patcher.patch(LinkifiedTextView.ClickableSpanOnTouchListener.class.getDeclaredMethod("getTouchedClickableSpans", TextView.class, MotionEvent.class),
+            new Hook(param -> {
+                if (param.getThrowable() != null) return;
+                var found = (android.text.style.ClickableSpan[]) param.getResult();
+                if (found != null && found.length > 0) return;
+                var spans = CodeBlocks.blockSpansAt((TextView) param.args[0], (MotionEvent) param.args[1]);
+                if (spans != null) param.setResult(spans);
+            })
+        );
 
         var blockBackgroundCtor = BlockBackgroundNode.class.getDeclaredConstructor(boolean.class, Node[].class);
         patcher.patch(blockBackgroundCtor, new PreHook(param -> {
@@ -107,7 +122,8 @@ public final class SlightlyBetterCodeBlocks extends Plugin {
     private Prism4jSyntaxHighlight highlight;
 
     public CharSequence render(String lang, String content) {
-        if (AnsiRenderer.isAnsi(lang)) return AnsiRenderer.render(content);
+        if (AnsiRenderer.isAnsi(lang))
+            return AnsiRenderer.render(content, settings.getBool(CodeBlocks.KEY_TERMINAL_COLORS, true));
         return highlight.highlight(lang, content == null ? "" : content);
     }
 

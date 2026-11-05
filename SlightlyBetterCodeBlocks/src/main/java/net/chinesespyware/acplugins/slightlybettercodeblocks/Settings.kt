@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2021 Juby210
+ * Modified by keyloggerforfree, 2026
  * Licensed under the Open Software License version 3.0
  */
 
@@ -28,6 +29,13 @@ class Settings(private val settings: SettingsAPI) : SettingsPage() {
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Render ANSI colors", "Colors, bold and underline in ```ansi codeblocks").apply {
             isChecked = settings.getBool(ANSI_KEY, true)
             setOnCheckedListener { settings.setBool(ANSI_KEY, it); CodeBlocks.rerenderChat() }
+        })
+
+        layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Terminal colors",
+            "Use a standard terminal palette in ```ansi codeblocks, with bright, 256 and true colors. " +
+                "Turn off to see Discord's own palette, like Discord desktop shows.").apply {
+            isChecked = settings.getBool(CodeBlocks.KEY_TERMINAL_COLORS, true)
+            setOnCheckedListener { settings.setBool(CodeBlocks.KEY_TERMINAL_COLORS, it); CodeBlocks.rerenderChat() }
         })
 
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Line numbers", "Show line numbers in chat codeblocks").apply {

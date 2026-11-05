@@ -1,4 +1,4 @@
-version = "1.2.0"
+version = "1.3.0"
 description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press copy, a code viewer and line numbers."
 
 // Original author of BetterCodeBlocks, which this is forked from.
@@ -6,6 +6,21 @@ description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press co
 aliucord.author("Juby210", 324622488644616195L)
 
 aliucord.changelog.set("""
+    1.3.0
+    ======================
+
+    Added {added}
+    ======================
+
+    * terminal colors for ANSI codeblocks (on by default): standard palette, bright, 256 and true colors. Turn off in settings for Discord's own palette
+    * block characters (▀▄█▟, sextants) are drawn as solid cells, so ANSI art and fastfetch logos line up
+
+    Fixed {fixed}
+    ======================
+
+    * tapping or long-pressing empty space in a codeblock now opens the viewer or copies it too
+    * ANSI white (37) was ignored
+
     1.2.0
     ======================
 
