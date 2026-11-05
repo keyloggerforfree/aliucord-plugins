@@ -1,5 +1,5 @@
 version = "1.2.0"
-description = "Fork of BetterCodeBlocks: ANSI colors, long-press copy, a code viewer and line numbers, plus everything BetterCodeBlocks does."
+description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press copy, a code viewer and line numbers."
 
 // Original author of BetterCodeBlocks, which this is forked from.
 // The root build.gradle.kts adds keyloggerforfree to every plugin first.
@@ -16,6 +16,12 @@ aliucord.changelog.set("""
     * long-press a codeblock to copy its source
     * tap a codeblock to open it in a viewer (line numbers, sideways scrolling, copy)
     * optional line numbers in chat
+
+    Fixed {fixed}
+    ======================
+
+    * codeblocks stay monospaced with custom system fonts (e.g. Samsung font styles)
+    * settings apply to messages already on screen, no restart needed
 
     1.1.2
     ======================

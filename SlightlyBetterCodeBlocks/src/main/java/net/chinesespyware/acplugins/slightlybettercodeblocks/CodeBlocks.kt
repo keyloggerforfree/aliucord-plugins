@@ -6,6 +6,8 @@
 package net.chinesespyware.acplugins.slightlybettercodeblocks
 
 import android.content.Context
+import android.os.SystemClock
+import androidx.recyclerview.widget.RecyclerView
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
@@ -15,6 +17,8 @@ import com.discord.utilities.color.ColorCompat
 import com.discord.utilities.spans.ClickableSpan
 import com.discord.utilities.textprocessing.node.Spoilerable
 import com.lytefast.flexinput.R
+import java.util.Collections
+import java.util.WeakHashMap
 
 /** Line numbers, long-press copy and tap-to-open-viewer for rendered codeblocks. */
 object CodeBlocks {
@@ -54,6 +58,8 @@ object CodeBlocks {
         val rendered = builder.subSequence(contentStart, builder.length)
 
         if (settings.getBool(KEY_LINE_NUMBERS, false)) addLineNumbers(builder, contentStart, ctx)
+        // Set after Discord's/Prism4j's spans so it wins over any TypefaceSpan("monospace") they add
+        builder.setSpan(MonospaceSpan(MonospaceSpan.typeface(ctx)), contentStart, builder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         if (raw != null && (parent == null || parent.isRevealed)) {
             val span = ClickableSpan(
@@ -66,13 +72,33 @@ object CodeBlocks {
         }
     }
 
+    private val chatAdapters: MutableSet<RecyclerView.Adapter<*>> = Collections.newSetFromMap(WeakHashMap())
+
+    /** Called for every WidgetChatListAdapter created, so settings changes can re-render visible messages. */
+    @JvmStatic
+    fun trackChatAdapter(adapter: RecyclerView.Adapter<*>) {
+        chatAdapters.add(adapter)
+    }
+
+    /** Re-binds all chat messages. Discord re-parses a message on every bind, so this applies new settings. */
+    @JvmStatic
+    fun rerenderChat() {
+        Utils.mainThread.post { chatAdapters.toList().forEach { it.notifyDataSetChanged() } }
+    }
+
     @JvmStatic
     fun copy(raw: String) {
         Utils.setClipboard("Codeblock", raw)
         Utils.showToast("Copied codeblock")
     }
 
+    private var lastViewerOpen = 0L
+
     private fun openViewer(ctx: Context, lang: String?, raw: String, rendered: CharSequence) {
+        // A double tap (e.g. out of habit with TapTap) would otherwise open two viewers before the first one shows up
+        val now = SystemClock.uptimeMillis()
+        if (now - lastViewerOpen < 700) return
+        lastViewerOpen = now
         Utils.openPageWithProxy(ctx, CodeViewer(lang, raw, rendered, settings.getBool(KEY_VIEWER_WRAP, false)))
     }
 

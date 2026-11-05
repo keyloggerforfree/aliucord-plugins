@@ -8,7 +8,6 @@ package net.chinesespyware.acplugins.slightlybettercodeblocks;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
-import android.text.style.TypefaceSpan;
 
 import com.discord.simpleast.core.node.Node;
 import com.discord.utilities.textprocessing.node.BasicRenderContext;
@@ -41,9 +40,8 @@ public final class BCBNode<RC extends BasicRenderContext> extends Node<RC> {
             builder.append(content);
             CodeBlocks.decorate(builder, a, contentStart, rc.getContext(), lang, raw, parent);
 
-            int b = builder.length();
-            builder.setSpan(new TypefaceSpan("monospace"), a, b, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.setSpan(new RelativeSizeSpan(0.85f), a, b, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // The code's font is set by CodeBlocks.decorate (MonospaceSpan)
+            builder.setSpan(new RelativeSizeSpan(0.85f), a, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 }

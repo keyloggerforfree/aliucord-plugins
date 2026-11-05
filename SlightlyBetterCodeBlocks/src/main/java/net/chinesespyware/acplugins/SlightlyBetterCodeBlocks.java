@@ -21,6 +21,7 @@ import com.discord.simpleast.core.parser.Parser;
 import com.discord.utilities.textprocessing.node.BasicRenderContext;
 import com.discord.utilities.textprocessing.node.BlockBackgroundNode;
 import com.discord.utilities.textprocessing.node.Spoilerable;
+import com.discord.widgets.chat.list.adapter.WidgetChatListAdapter;
 
 import java.util.regex.Matcher;
 
@@ -58,6 +59,10 @@ public final class SlightlyBetterCodeBlocks extends Plugin {
             if (Settings.Companion.get(settings, lang))
                 param.setResult(new ParseSpec<>(renderCodeBlock(lang, matcher.group(3)), param.args[2]));
         }));
+
+        // Remember chat adapters so changing a setting can re-render the messages already on screen
+        for (var ctor : WidgetChatListAdapter.class.getDeclaredConstructors())
+            patcher.patch(ctor, new Hook(param -> CodeBlocks.trackChatAdapter((WidgetChatListAdapter) param.thisObject)));
 
         var blockBackgroundCtor = BlockBackgroundNode.class.getDeclaredConstructor(boolean.class, Node[].class);
         patcher.patch(blockBackgroundCtor, new PreHook(param -> {

@@ -27,12 +27,12 @@ class Settings(private val settings: SettingsAPI) : SettingsPage() {
         val layout = linearLayout
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Render ANSI colors", "Colors, bold and underline in ```ansi codeblocks").apply {
             isChecked = settings.getBool(ANSI_KEY, true)
-            setOnCheckedListener { settings.setBool(ANSI_KEY, it) }
+            setOnCheckedListener { settings.setBool(ANSI_KEY, it); CodeBlocks.rerenderChat() }
         })
 
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Line numbers", "Show line numbers in chat codeblocks").apply {
             isChecked = settings.getBool(CodeBlocks.KEY_LINE_NUMBERS, false)
-            setOnCheckedListener { settings.setBool(CodeBlocks.KEY_LINE_NUMBERS, it) }
+            setOnCheckedListener { settings.setBool(CodeBlocks.KEY_LINE_NUMBERS, it); CodeBlocks.rerenderChat() }
         })
 
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Wrap lines in code viewer", "Tap a codeblock to open the viewer, long-press to copy it. Off scrolls long lines sideways.").apply {
@@ -48,14 +48,14 @@ class Settings(private val settings: SettingsAPI) : SettingsPage() {
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Not supported languages", null).apply {
             val key = "notSupported"
             isChecked = settings.getBool(key, false)
-            setOnCheckedListener { settings.setBool(key, it) }
+            setOnCheckedListener { settings.setBool(key, it); CodeBlocks.rerenderChat() }
         })
 
         for (entry in SWITCHES) {
             val lang = entry.key
             layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, lang, null).apply {
                 isChecked = settings.getBool(lang, entry.value)
-                setOnCheckedListener { settings.setBool(lang, it) }
+                setOnCheckedListener { settings.setBool(lang, it); CodeBlocks.rerenderChat() }
             })
         }
     }
