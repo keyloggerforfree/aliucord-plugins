@@ -17,11 +17,13 @@ If you have the original BetterCodeBlocks installed, uninstall it first. Both pl
 
 ### Install
 
-In Aliucord, install from this link:
+Aliucord's built-in installer only works for GitHub links posted in the Aliucord server, so install it by hand:
 
-```
-https://git.chinesespyware.net/keyloggerforfree/aliucord-plugins/raw/branch/builds/SlightlyBetterCodeBlocks.zip
-```
+1. Download [SlightlyBetterCodeBlocks.zip](https://git.chinesespyware.net/keyloggerforfree/aliucord-plugins/raw/branch/builds/SlightlyBetterCodeBlocks.zip).
+2. Move it to `Aliucord/plugins/` in your phone's internal storage (`/storage/emulated/0/Aliucord/plugins/`). Don't unzip it.
+3. Restart Aliucord.
+
+After that, the plugin updates itself through Aliucord's updater.
 
 ## Building
 
