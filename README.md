@@ -9,7 +9,7 @@ A fork of [BetterCodeBlocks](https://github.com/Juby210/Aliucord-plugins/tree/ma
 - **ANSI colors:** ` ```ansi ` blocks render with colors, bold and underline. By default it uses a standard terminal palette and supports bright, 256 and true colors. Turn off "Terminal colors" to get Discord's own palette, the same as on desktop.
 - **Block art:** block characters (`▀ ▄ █ ▟`, sextants like `🬋`) are drawn as solid cells, so ANSI art and fastfetch logos line up even when the font lacks them.
 - **Long-press to copy:** long-press anywhere in a block, including empty space, to copy its source without the language label. ANSI escape codes are kept, so a copied colored block can be sent again as is.
-- **Code viewer:** tap a code block to open it full screen, with line numbers, text you can select, a copy button and sideways scrolling for long lines.
+- **Code viewer:** tap a code block to open it in a floating window sized to the code, with line numbers, text you can select, a copy button and sideways scrolling for long lines. Tap outside it or press back to close it.
 - **Line numbers in chat:** optional, off by default.
 
 All of these can be turned on or off in the plugin settings. You don't need [CopyCodeBlocks](https://github.com/RazerTexz/my-plugins/tree/main/CopyCodeBlocks) alongside this plugin.

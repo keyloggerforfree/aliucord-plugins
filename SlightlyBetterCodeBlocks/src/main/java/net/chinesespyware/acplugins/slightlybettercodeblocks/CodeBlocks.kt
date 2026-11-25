@@ -122,7 +122,7 @@ object CodeBlocks {
         val now = SystemClock.uptimeMillis()
         if (now - lastViewerOpen < 700) return
         lastViewerOpen = now
-        Utils.openPageWithProxy(ctx, CodeViewer(lang, raw, rendered, settings.getBool(KEY_VIEWER_WRAP, false)))
+        CodeViewer.show(ctx, lang, raw, rendered, settings.getBool(KEY_VIEWER_WRAP, false))
     }
 
     /** Line start offsets of [text] from [start], ignoring trailing newlines. */

@@ -1,4 +1,4 @@
-version = "1.3.0"
+version = "1.4.0"
 description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press copy, a code viewer and line numbers."
 
 // Original author of BetterCodeBlocks, which this is forked from.
@@ -6,6 +6,14 @@ description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press co
 aliucord.author("Juby210", 324622488644616195L)
 
 aliucord.changelog.set("""
+    1.4.0
+    ======================
+
+    Improved {improved}
+    ======================
+
+    * the code viewer is now a floating window sized to the codeblock, instead of a full screen page. Tap outside it, press back or use the X to close it
+
     1.3.0
     ======================
 
