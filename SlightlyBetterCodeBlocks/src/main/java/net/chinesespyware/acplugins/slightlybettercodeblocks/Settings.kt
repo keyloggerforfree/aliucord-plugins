@@ -33,7 +33,7 @@ class Settings(private val settings: SettingsAPI) : SettingsPage() {
 
         layout.addView(com.aliucord.Utils.createCheckedSetting(context, CheckedSetting.ViewType.SWITCH, "Terminal colors",
             "Use a standard terminal palette in ```ansi codeblocks, with bright, 256 and true colors. " +
-                "Turn off to see Discord's own palette, like Discord desktop shows.").apply {
+                "Turn off for the muted Solarized-based palette from Discord's original ANSI support.").apply {
             isChecked = settings.getBool(CodeBlocks.KEY_TERMINAL_COLORS, true)
             setOnCheckedListener { settings.setBool(CodeBlocks.KEY_TERMINAL_COLORS, it); CodeBlocks.rerenderChat() }
         })

@@ -29,7 +29,7 @@ aliucord.changelog.set("""
     Added {added}
     ======================
 
-    * terminal colors for ANSI codeblocks (on by default): standard palette, bright, 256 and true colors. Turn off in settings for Discord's own palette
+    * terminal colors for ANSI codeblocks (on by default): standard palette, bright, 256 and true colors. Turn off in settings for Discord's original Solarized-based palette
     * block characters (▀▄█▟, sextants) are drawn as solid cells, so ANSI art and fastfetch logos line up
 
     Fixed {fixed}

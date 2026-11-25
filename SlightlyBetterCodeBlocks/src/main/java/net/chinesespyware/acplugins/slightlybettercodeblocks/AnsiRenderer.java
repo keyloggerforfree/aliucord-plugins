@@ -16,15 +16,15 @@ import android.text.style.UnderlineSpan;
 /**
  * Renders ```ansi code blocks.
  *
- * Discord mode (default) matches Discord desktop/web: 0 reset, 1 bold, 4 underline, 30-37 foreground and
- * 40-47 background with Discord's palette. Terminal mode uses a standard terminal palette instead and adds
- * bright colors (90-97, 100-107), 256 colors (38;5;n) and true color (38;2;r;g;b).
+ * Terminal mode (default) uses a standard terminal palette and supports bright colors (90-97, 100-107),
+ * 256 colors (38;5;n) and true color (38;2;r;g;b). Discord mode uses the Solarized-based palette from Discord's
+ * original ANSI support: 0 reset, 1 bold, 4 underline, 30-37 foreground and 40-47 background only.
  * In both modes 22/24/39/49 clear their attribute. Every other escape sequence is stripped.
  */
 public final class AnsiRenderer {
     private static final char ESC = '\u001b';
 
-    // Discord's palette is based on Solarized. Its backgrounds come from Solarized's "bright" slots,
+    // Discord's original ANSI palette, based on Solarized. Its backgrounds come from Solarized's "bright" slots,
     // which Solarized uses for grey tones, so they look washed out compared to a terminal.
     private static final int[] DISCORD_FOREGROUND = {
         0xFF4F545C, // 30 gray

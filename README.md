@@ -6,7 +6,7 @@ Plugins for [Aliucord](https://github.com/Aliucord/Aliucord).
 
 A fork of [BetterCodeBlocks](https://github.com/Juby210/Aliucord-plugins/tree/main/BetterCodeBlocks) by [Juby210](https://github.com/Juby210). All the syntax highlighting comes from the original plugin. This fork adds:
 
-- **ANSI colors:** ` ```ansi ` blocks render with colors, bold and underline. By default it uses a standard terminal palette and supports bright, 256 and true colors. Turn off "Terminal colors" to get Discord's own palette, the same as on desktop.
+- **ANSI colors:** ` ```ansi ` blocks render with colors, bold and underline. By default it uses a standard terminal palette and supports bright, 256 and true colors. Turn off "Terminal colors" for the muted Solarized-based palette from Discord's original ANSI support.
 - **Block art:** block characters (`▀ ▄ █ ▟`, sextants like `🬋`) are drawn as solid cells, so ANSI art and fastfetch logos line up even when the font lacks them.
 - **Long-press to copy:** long-press anywhere in a block, including empty space, to copy its source without the language label. ANSI escape codes are kept, so a copied colored block can be sent again as is.
 - **Code viewer:** tap a code block to open it in a floating window sized to the code, with line numbers, text you can select, a copy button and sideways scrolling for long lines. Tap outside it or press back to close it.
