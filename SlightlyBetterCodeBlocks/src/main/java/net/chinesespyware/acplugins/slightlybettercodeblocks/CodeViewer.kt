@@ -54,6 +54,9 @@ object CodeViewer {
         // from the theme, which would stop the card from shrinking to small codeblocks.
         val dialog = Dialog(ctx, android.R.style.Theme_Translucent_NoTitleBar)
         val lineCount = CodeBlocks.lineStarts(rendered, 0).size
+        val header = header(ctx, lang, lineCount, raw, dialog::dismiss)
+        val h = DimenUtils.dpToPx(8)
+        val v = DimenUtils.dpToPx(8)
 
         val card = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -64,17 +67,21 @@ object CodeViewer {
             }
             clipToOutline = true
             // Header first: LinearLayout gives the scroll view only the height that's left
-            addView(header(ctx, lang, lineCount, raw, dialog::dismiss), LinearLayout.LayoutParams(MATCH, WRAP))
+            addView(header, LinearLayout.LayoutParams(MATCH, WRAP))
             addView(ScrollView(ctx).apply {
                 addView(codeView(ctx, rendered, lineCount, wrap), FrameLayout.LayoutParams(WRAP, WRAP))
             }, LinearLayout.LayoutParams(WRAP, WRAP))
+
+            // Center the code, not the whole card: move up by half the header, but never past the top margin
+            // (tall cards that fill the screen don't move)
+            addOnLayoutChangeListener { card, _, top, _, _, _, _, _, _ ->
+                card.translationY = maxOf(-header.height / 2f, (v - top).toFloat())
+            }
         }
 
         val root = FrameLayout(ctx).apply {
             setOnClickListener { dialog.dismiss() }
             addView(card, FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER).apply {
-                val h = DimenUtils.dpToPx(8)
-                val v = DimenUtils.dpToPx(8)
                 setMargins(h, v, h, v)
             })
         }

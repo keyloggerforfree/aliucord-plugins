@@ -1,4 +1,4 @@
-version = "1.4.0"
+version = "1.4.1"
 description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press copy, a code viewer and line numbers."
 
 // Original author of BetterCodeBlocks, which this is forked from.
@@ -6,6 +6,15 @@ description = "BetterCodeBlocks, but slightly better: ANSI colors, long-press co
 aliucord.author("Juby210", 324622488644616195L)
 
 aliucord.changelog.set("""
+    1.4.1
+    ======================
+
+    Fixed {fixed}
+    ======================
+
+    * c++ codeblocks (and other C++ aliases Discord desktop supports) get C++ highlighting
+    * the code viewer centers the code itself, with the header above it
+
     1.4.0
     ======================
 

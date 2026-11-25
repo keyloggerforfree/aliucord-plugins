@@ -56,6 +56,16 @@ public final class GrammarLocatorImpl implements GrammarLocator {
                 return "python";
             case "kt":
                 return "kotlin";
+            // Same C++ aliases as Discord desktop (highlight.js); https://github.com/Juby210/Aliucord-plugins/issues/68
+            case "c++":
+            case "h":
+            case "h++":
+            case "cc":
+            case "cxx":
+            case "hpp":
+            case "hh":
+            case "hxx":
+                return "cpp";
         }
         return name;
     }
